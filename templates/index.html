@@ -3,62 +3,129 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SV Downloader 🚀</title>
-    <link rel="stylesheet" href="/static/style.css">
+    <title>SV Downloader</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
-    <div class="container">
-        <h1>SV Downloader 🎥</h1>
-        <p>Paste your TikTok or IG Reels link below!</p>
-        
-        <div class="input-group">
-            <input type="text" id="videoUrl" placeholder="https://www.instagram.com/reels/...">
-            <button onclick="startDownload()" id="btn">Download Now! 🔥</button>
+    <div class="top-bar">
+        <div class="left-empty"></div>
+        <div class="right-controls">
+            <label class="switch" title="Toggle Light/Dark Mode">
+                <input type="checkbox" id="themeToggle">
+                <span class="slider round"></span>
+            </label>
         </div>
+    </div>
 
-        <div id="status"></div>
+    <div class="main-wrapper">
+        <div class="app-card">
+            <div class="header">
+                <h1>SV Downloader</h1>
+                <p>Paste your link to download without watermarks.</p>
+            </div>
+            
+            <div class="input-group">
+                <input type="url" id="videoUrl" placeholder="https://tiktok.com/... or instagram.com/..." autocomplete="off">
+                <button id="downloadBtn" onclick="processDownload()">
+                    <span id="btnText">Download</span>
+                    <div id="btnSpinner" class="spinner hidden"></div>
+                </button>
+            </div>
+
+            <div id="statusBox" class="status-box hidden">
+                <p id="statusMessage"></p>
+            </div>
+        </div>
     </div>
 
     <script>
-        async function startDownload() {
-            const url = document.getElementById('videoUrl').value;
-            const status = document.getElementById('status');
-            const btn = document.getElementById('btn');
+        // Theme Toggle Logic
+        const themeToggle = document.getElementById('themeToggle');
+        const currentTheme = localStorage.getItem('theme');
 
-            if (!url) {
-                status.innerText = "Error: Paste a link first! 🛑";
+        if (currentTheme === 'light') {
+            document.documentElement.setAttribute('data-theme', 'light');
+            themeToggle.checked = true;
+        }
+
+        themeToggle.addEventListener('change', function() {
+            if (this.checked) {
+                document.documentElement.setAttribute('data-theme', 'light');
+                localStorage.setItem('theme', 'light');
+            } else {
+                document.documentElement.removeAttribute('data-theme');
+                localStorage.setItem('theme', 'dark');
+            }
+        });
+
+        // Download Logic
+        async function processDownload() {
+            const urlInput = document.getElementById('videoUrl').value.trim();
+            const btn = document.getElementById('downloadBtn');
+            const btnText = document.getElementById('btnText');
+            const btnSpinner = document.getElementById('btnSpinner');
+
+            if (!urlInput) {
+                showStatus("Please paste a valid link first.", "error");
                 return;
             }
 
-            status.innerText = "Fetching your video... please wait! ⏳";
             btn.disabled = true;
+            btnText.innerText = "Extracting...";
+            btnSpinner.classList.remove('hidden');
+            showStatus("Connecting to server...", "info");
 
             try {
                 const response = await fetch('/download', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ url: url })
+                    body: JSON.stringify({ url: urlInput })
                 });
 
                 if (response.ok) {
-                    // Convert the response into a downloadable file (Blob)
+                    showStatus("File ready! Starting download...", "success");
+                    
+                    const disposition = response.headers.get('Content-Disposition');
+                    let filename = "sv_download.mp4";
+                    if (disposition && disposition.indexOf('attachment') !== -1) {
+                        const matches = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/.exec(disposition);
+                        if (matches != null && matches[1]) { 
+                            filename = matches[1].replace(/['"]/g, '');
+                        }
+                    }
+
                     const blob = await response.blob();
                     const downloadUrl = window.URL.createObjectURL(blob);
                     const a = document.createElement('a');
                     a.href = downloadUrl;
-                    a.download = "social_video.mp4"; // Default name
+                    a.download = decodeURIComponent(filename); 
                     document.body.appendChild(a);
                     a.click();
                     a.remove();
-                    status.innerText = "Success! Check your downloads! ✅";
+                    window.URL.revokeObjectURL(downloadUrl);
+                    
+                    showStatus("Download complete!", "success");
+                    document.getElementById('videoUrl').value = ''; 
                 } else {
-                    status.innerText = "Error: Video could not be found. ❌";
+                    const errorData = await response.json();
+                    showStatus(`Error: ${errorData.error}`, "error");
                 }
             } catch (err) {
-                status.innerText = "Server error. Is the backend running? 🔌";
+                showStatus("Fatal Error: Server is unreachable.", "error");
             } finally {
                 btn.disabled = false;
+                btnText.innerText = "Download";
+                btnSpinner.classList.add('hidden');
             }
+        }
+
+        function showStatus(message, type) {
+            const statusBox = document.getElementById('statusBox');
+            const statusMessage = document.getElementById('statusMessage');
+            
+            statusBox.className = `status-box ${type}`;
+            statusMessage.innerText = message;
         }
     </script>
 </body>
