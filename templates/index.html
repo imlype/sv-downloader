@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SV Downloader 🚀</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>SV Downloader 🎥</h1>
+        <p>Paste your TikTok or IG Reels link below!</p>
+        
+        <div class="input-group">
+            <input type="text" id="videoUrl" placeholder="https://www.instagram.com/reels/...">
+            <button onclick="startDownload()" id="btn">Download Now! 🔥</button>
+        </div>
+
+        <div id="status"></div>
+    </div>
+
+    <script>
+        async function startDownload() {
+            const url = document.getElementById('videoUrl').value;
+            const status = document.getElementById('status');
+            const btn = document.getElementById('btn');
+
+            if (!url) {
+                status.innerText = "Error: Paste a link first! 🛑";
+                return;
+            }
+
+            status.innerText = "Fetching your video... please wait! ⏳";
+            btn.disabled = true;
+
+            try {
+                const response = await fetch('/download', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ url: url })
+                });
+
+                if (response.ok) {
+                    // Convert the response into a downloadable file (Blob)
+                    const blob = await response.blob();
+                    const downloadUrl = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = downloadUrl;
+                    a.download = "social_video.mp4"; // Default name
+                    document.body.appendChild(a);
+                    a.click();
+                    a.remove();
+                    status.innerText = "Success! Check your downloads! ✅";
+                } else {
+                    status.innerText = "Error: Video could not be found. ❌";
+                }
+            } catch (err) {
+                status.innerText = "Server error. Is the backend running? 🔌";
+            } finally {
+                btn.disabled = false;
+            }
+        }
+    </script>
+</body>
+</html>
