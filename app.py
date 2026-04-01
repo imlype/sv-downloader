@@ -6,8 +6,8 @@ import yt_dlp
 
 app = Flask(__name__)
 
-# Ensure clean temp storage
-DOWNLOAD_FOLDER = 'downloads'
+# Vercel requires saving here
+DOWNLOAD_FOLDER = '/tmp/downloads'
 os.makedirs(DOWNLOAD_FOLDER, exist_ok=True)
 
 @app.route('/')
@@ -22,7 +22,6 @@ def download_video():
     if not video_url:
         return jsonify({"error": "Bruv, paste a link first."}), 400
 
-    # THE FIX: 'best[ext=mp4]/best' forces a single file download. No FFmpeg required.
     unique_id = str(uuid.uuid4())[:8]
     ydl_opts = {
         'format': 'best[ext=mp4]/best', 
@@ -42,14 +41,12 @@ def download_video():
             filename = ydl.prepare_filename(info)
 
             if os.path.exists(filename):
-                # Buffer to memory so we can delete the file immediately
                 with open(filename, 'rb') as f:
                     file_data = io.BytesIO(f.read())
                 
                 os.remove(filename)
                 file_data.seek(0)
                 
-                # Sanitize the filename for the user
                 safe_title = info.get('title', 'social_video').replace('/', '_').replace('\\', '_')
                 final_name = f"{safe_title}.mp4"
 
@@ -63,7 +60,6 @@ def download_video():
                 return jsonify({"error": "File vanished after download."}), 500
             
     except Exception as e:
-        # Pass the exact crash reason to the frontend
         return jsonify({"error": str(e)}), 500
 
 if __name__ == '__main__':
