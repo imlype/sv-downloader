@@ -4,23 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My Videos | SV Downloader Pro</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=101">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=102">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
-    <canvas id="particleCanvas" class="background-canvas"></canvas>
     <div id="toastContainer" class="toast-container"></div>
 
     <nav class="top-nav">
         <a href="/" class="nav-brand">
-            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="url(#brandGradient)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                <defs>
-                    <linearGradient id="brandGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                        <stop offset="0%" stop-color="#3b82f6" />
-                        <stop offset="100%" stop-color="#8b5cf6" />
-                    </linearGradient>
-                </defs>
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="color: var(--primary-color);">
                 <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
                 <polyline points="7 10 12 15 17 10"></polyline>
                 <line x1="12" y1="15" x2="12" y2="3"></line>
@@ -30,17 +23,17 @@
         
         <div class="nav-controls">
             <button class="icon-btn" id="themeToggleBtn" title="Toggle Theme">
-                <svg class="sun-icon hidden" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
-                <svg class="moon-icon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+                <svg class="sun-icon hidden" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+                <svg class="moon-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
             </button>
             
             <div id="authContainer">
-                <a href="/login" class="btn btn-outline" style="text-decoration:none;">Log In</a>
+                <a href="/login" class="btn btn-outline">Log In</a>
             </div>
 
             <div class="dropdown-wrapper">
                 <button class="icon-btn" id="menuTriggerBtn">
-                    <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
                 </button>
                 <div id="mainDropdown" class="dropdown-menu">
                     <div class="dropdown-header">Menu</div>
@@ -54,7 +47,7 @@
     </nav>
 
     <main class="history-wrapper">
-        <div class="history-header">
+        <div class="history-header" style="margin-bottom: 2rem;">
             <h1 class="page-title">My Videos</h1>
             <p class="page-subtitle">All your previously downloaded videos are saved right here.</p>
         </div>
@@ -62,63 +55,41 @@
         <div id="authPrompt" class="empty-state hidden">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
             <h3>You need to log in</h3>
-            <p style="margin-bottom: 2rem;">Please log in or create an account to view your saved videos.</p>
-            <a href="/login" class="btn btn-primary" style="text-decoration:none;">Go to Log In</a>
+            <p style="margin-bottom: 1.5rem;">Please log in or create an account to view your saved videos.</p>
+            <a href="/login" class="btn btn-primary">Go to Log In</a>
         </div>
 
         <div id="historyGrid" class="history-grid"></div>
     </main>
 
     <script>
-        class ParticleEngine {
-            constructor() {
-                this.canvas = document.getElementById('particleCanvas');
-                this.ctx = this.canvas.getContext('2d');
-                this.particles = [];
-                this.resize();
-                window.addEventListener('resize', () => this.resize());
-                this.init();
-                this.animate();
-            }
-            resize() { this.canvas.width = window.innerWidth; this.canvas.height = window.innerHeight; }
-            init() {
-                this.particles = [];
-                const count = window.innerWidth < 768 ? 35 : 80;
-                for (let i = 0; i < count; i++) {
-                    this.particles.push({
-                        x: Math.random() * this.canvas.width, y: Math.random() * this.canvas.height,
-                        vx: (Math.random() - 0.5) * 0.8, vy: (Math.random() - 0.5) * 0.8,
-                        radius: Math.random() * 2.5 + 1
-                    });
-                }
-            }
-            animate() {
-                requestAnimationFrame(() => this.animate());
-                this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-                const isDark = document.documentElement.getAttribute('data-theme') !== 'light';
-                this.ctx.fillStyle = isDark ? 'rgba(255, 255, 255, 0.4)' : 'rgba(0, 0, 0, 0.15)';
-                this.ctx.strokeStyle = isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.05)';
+        class ToastSystem {
+            constructor() { this.container = document.getElementById('toastContainer'); }
+            show(msg, type = 'info', ms = 4000) {
+                const t = document.createElement('div');
+                t.className = `toast toast-${type}`;
+                t.innerHTML = `
+                    <div class="toast-content">
+                        <div class="toast-title">${type === 'error' ? 'Error' : type === 'success' ? 'Success' : 'Notice'}</div>
+                        <div class="toast-msg">${msg}</div>
+                    </div>
+                    <button class="toast-close">✕</button>
+                    <div class="toast-progress"></div>
+                `;
+                this.container.appendChild(t);
+                void t.offsetWidth; t.classList.add('visible');
 
-                for (let i = 0; i < this.particles.length; i++) {
-                    const p = this.particles[i];
-                    p.x += p.vx; p.y += p.vy;
-                    if (p.x < 0 || p.x > this.canvas.width) p.vx *= -1;
-                    if (p.y < 0 || p.y > this.canvas.height) p.vy *= -1;
-                    this.ctx.beginPath(); this.ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2); this.ctx.fill();
-
-                    for (let j = i + 1; j < this.particles.length; j++) {
-                        const p2 = this.particles[j];
-                        const dx = p.x - p2.x; const dy = p.y - p2.y;
-                        if (Math.sqrt(dx*dx + dy*dy) < 120) {
-                            this.ctx.beginPath(); this.ctx.moveTo(p.x, p.y); this.ctx.lineTo(p2.x, p2.y); this.ctx.stroke();
-                        }
-                    }
-                }
+                const bar = t.querySelector('.toast-progress');
+                bar.style.transition = `width ${ms}ms linear`; bar.style.width = '0%';
+                
+                const remove = () => { t.classList.remove('visible'); setTimeout(() => t.remove(), 300); };
+                t.querySelector('.toast-close').onclick = remove;
+                setTimeout(remove, ms);
             }
         }
 
         document.addEventListener('DOMContentLoaded', () => {
-            new ParticleEngine();
+            const toast = new ToastSystem();
 
             const menuBtn = document.getElementById('menuTriggerBtn');
             const dropdown = document.getElementById('mainDropdown');
@@ -128,11 +99,11 @@
             });
 
             const themeBtn = document.getElementById('themeToggleBtn');
-            if (localStorage.getItem('theme') === 'light') document.documentElement.setAttribute('data-theme', 'light');
+            if (localStorage.getItem('theme') === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
             themeBtn.addEventListener('click', () => {
-                const isLight = document.documentElement.getAttribute('data-theme') === 'light';
-                document.documentElement.setAttribute('data-theme', isLight ? 'dark' : 'light');
-                localStorage.setItem('theme', isLight ? 'dark' : 'light');
+                const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+                document.documentElement.setAttribute('data-theme', isDark ? 'light' : 'dark');
+                localStorage.setItem('theme', isDark ? 'light' : 'dark');
             });
 
             const dbUrl = 'https://ncqufcoprwkpjredhlxo.supabase.co'; 
@@ -151,10 +122,10 @@
 
                 const initials = session.user.email.substring(0,2).toUpperCase();
                 document.getElementById('authContainer').innerHTML = `
-                    <div class="user-pill dropdown-wrapper">
+                    <div class="user-pill">
                         <div class="avatar-circle">${initials}</div>
                         <span class="user-email-truncate">${session.user.email}</span>
-                        <button class="btn btn-outline btn-sm" style="margin-left:8px" id="logoutBtn">Log Out</button>
+                        <button class="btn btn-outline btn-sm" style="margin-left:10px; border:none;" id="logoutBtn">Log Out</button>
                     </div>
                 `;
                 document.getElementById('logoutBtn').addEventListener('click', async () => {
@@ -182,7 +153,8 @@
                             <div class="empty-state">
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18"></rect><line x1="7" y1="2" x2="7" y2="22"></line><line x1="17" y1="2" x2="17" y2="22"></line><line x1="2" y1="12" x2="22" y2="12"></line></svg>
                                 <h3>No videos yet!</h3>
-                                <p>You haven't downloaded any videos yet. Go back home to grab one!</p>
+                                <p style="margin-bottom: 1.5rem;">You haven't downloaded any videos yet. Go back home to grab one!</p>
+                                <a href="/" class="btn btn-primary">Go Home</a>
                             </div>
                         `;
                         return;
@@ -192,15 +164,13 @@
                         <div class="video-card">
                             <div class="video-thumb-wrapper">
                                 <img src="${item.thumbnail}" alt="Media Cover" class="video-thumb" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9IiMzMzMiLz48dGV4dCB4PSI1MCUiIHk9IjUwJSIgZm9udC1mYW1pbHk9InNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMTQiIGZpbGw9IiM2NjYiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuM2VtIj5ObyBJbWFnZTwvdGV4dD48L3N2Zz4='">
-                                <div class="media-overlay">
-                                    <a href="${item.video_url}" target="_blank" class="btn btn-primary btn-sm" style="text-decoration:none;">View Original Post</a>
-                                </div>
                             </div>
                             <div class="video-info">
                                 <h3>${item.creator}</h3>
                                 <p>${item.description || 'No description provided.'}</p>
                                 <div class="card-footer">
                                     <span class="timestamp">${new Date(item.created_at).toLocaleDateString()}</span>
+                                    <a href="${item.video_url}" target="_blank" class="btn btn-outline btn-sm">View Original</a>
                                 </div>
                             </div>
                         </div>

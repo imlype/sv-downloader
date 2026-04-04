@@ -31,8 +31,11 @@ def extract_video():
         return jsonify({"error": "Target URL parameter is missing or malformed."}), 400
 
     unique_id = str(uuid.uuid4())
+    
+    # THE FIX: Forcing yt-dlp to prioritize universally playable H.264 (AVC) codecs
+    # This prevents Windows from begging the user to buy the HEVC extension
     ydl_opts = {
-        'format': 'best[ext=mp4]/best', 
+        'format': 'best[ext=mp4][vcodec^=avc]/best[ext=mp4]/best', 
         'outtmpl': f'{DOWNLOAD_FOLDER}/{unique_id}.%(ext)s', 
         'noplaylist': True,
         'quiet': True,
