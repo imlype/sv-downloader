@@ -1,2 +1,19 @@
+# ==============================================================================
+# SV DOWNLOADER PRO - PYTHON DEPENDENCIES
+# ------------------------------------------------------------------------------
+# CS STUDENT EDUCATIONAL GUIDE:
+# This file specifies the external third-party Python packages required to run
+# the SV Downloader application. It is parsed automatically by `pip install -r`
+# and cloud hosting providers (e.g. Vercel, Railway, Render, Heroku).
+# ==============================================================================
+
+# Flask: Lightweight WSGI web framework for routing, HTTP APIs, and Jinja2 templating
 flask
+
+# yt-dlp: Advanced media extraction engine for querying and downloading video streams
 yt-dlp
+
+# curl_cffi: C-bindings for libcurl with browser TLS/JA3 impersonation support.
+# Pinning to <0.15 ensures compatibility with yt-dlp's impersonation extractor
+# to prevent WAF bot challenge blocks on platforms like TikTok.
+curl_cffi<0.15

@@ -1,173 +1,600 @@
 <!DOCTYPE html>
+<!--
+  ==============================================================================
+  DOCUMENT TYPE DECLARATION (DOCTYPE):
+  In HTML5, `<!DOCTYPE html>` informs the web browser that this document must
+  be parsed in standards-compliant mode rather than quirks mode. This ensures
+  consistent rendering across modern web browsers (Chrome, Firefox, Safari, Edge).
+  ==============================================================================
+-->
 <html lang="en">
 <head>
+    <!--
+      CHARACTER ENCODING:
+      UTF-8 is the universal standard encoding for modern web apps. It supports
+      all human languages, punctuation, and symbols without character corruption.
+    -->
     <meta charset="UTF-8">
+
+    <!--
+      RESPONSIVE VIEWPORT META TAG:
+      Essential for mobile-friendly responsive design.
+      - `width=device-width`: Matches the page width to the screen's physical width.
+      - `initial-scale=1.0`: Sets initial zoom level to 100%, giving 1:1 CSS pixel ratio.
+    -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SV Downloader Pro</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=102">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- PAGE TITLE: Browser tab label, bookmark text, and search result title -->
+    <title>SV Downloader | Clean & Watermark-Free Video Downloads</title>
+
+    <!--
+      STYLESHEET LINK:
+      Flask uses `url_for('static', filename='...')` to resolve paths.
+      The query string `?v=105` is a cache-busting token that forces browsers to
+      fetch the updated CSS instead of loading cached versions.
+    -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=105">
+
+    <!--
+      GOOGLE FONTS PRECONNECT & IMPORT:
+      Preconnecting to Google Fonts CDN reduces DNS lookup and TLS handshake latency.
+      We import four thoughtfully paired typefaces:
+      1. 'Playfair Display' - Editorial serif for refined, bespoke headings.
+      2. 'Montserrat' - Clean, geometric sans-serif for branding and buttons.
+      3. 'Raleway' - Elegant sans-serif with distinct personality for titles and chips.
+      4. 'Lato' - Warm, highly legible body copy for descriptions and inputs.
+    -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,300;0,400;0,700;1,400&family=Montserrat:wght@500;600;700;800&family=Playfair+Display:ital,wght@0,600;0,700;1,600&family=Raleway:wght@500;600;700&display=swap" rel="stylesheet">
+
+    <!--
+      SUPABASE CLIENT LIBRARY (CDN):
+      Supabase JavaScript SDK for client-side authentication sessions and database access.
+    -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
-    <div id="toastContainer" class="toast-container"></div>
+    <!--
+      ==========================================================================
+      TOAST NOTIFICATION CONTAINER:
+      Fixed viewport element where JavaScript injects alert banners for success,
+      error, and informational messages.
+      ==========================================================================
+    -->
+    <div id="toastContainer" class="toast-container" aria-live="polite" aria-atomic="true"></div>
 
-    <nav class="top-nav">
-        <a href="/" class="nav-brand">
-            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="color: var(--primary-color);">
-                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                <polyline points="7 10 12 15 17 10"></polyline>
-                <line x1="12" y1="15" x2="12" y2="3"></line>
-            </svg>
-            <span class="brand-text">SV Downloader</span>
-        </a>
-        
-        <div class="nav-controls">
-            <button class="icon-btn" id="themeToggleBtn" title="Toggle Theme">
-                <svg class="sun-icon hidden" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
-                <svg class="moon-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
-            </button>
-            
-            <div id="authContainer">
-                <a href="/login" class="btn btn-outline">Log In</a>
+    <!--
+      ==========================================================================
+      TOP NAVIGATION BAR:
+      Semantic `<header>` and `<nav>` provide landmark navigation for accessibility.
+      Uses an understated border and backdrop blur for clean, non-AI styling.
+      ==========================================================================
+    -->
+    <header class="top-nav-wrapper">
+        <nav class="top-nav" aria-label="Main Navigation">
+            <!-- Brand Logo & Identity: Clean minimalist emblem -->
+            <a href="/" class="nav-brand" title="SV Downloader Home">
+                <div class="brand-icon-wrapper">
+                    <!-- Clean geometric SVG monogram: Minimalist 'S' and download arrow -->
+                    <svg class="brand-svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M7 10l5 5 5-5"></path>
+                        <path d="M12 15V3"></path>
+                        <path d="M5 20h14"></path>
+                    </svg>
+                </div>
+                <div class="brand-text-container">
+                    <span class="brand-text">SV Downloader</span>
+                </div>
+            </a>
+
+            <!-- Desktop Navigation Links -->
+            <div class="nav-links-desktop">
+                <a href="/" class="nav-link active">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+                    Downloader
+                </a>
+                <a href="/recent" class="nav-link">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                    My Videos
+                </a>
+                <a href="https://github.com/imlype" target="_blank" rel="noopener noreferrer" class="nav-link">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path></svg>
+                    GitHub
+                </a>
             </div>
-
-            <div class="dropdown-wrapper">
-                <button class="icon-btn" id="menuTriggerBtn">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+            
+            <!-- Controls Group: Theme Toggle, User Authentication, Dropdown Menu -->
+            <div class="nav-controls">
+                <!-- Theme Toggle Button (Light/Dark mode) -->
+                <button class="icon-btn theme-toggle-btn" id="themeToggleBtn" title="Toggle Theme" aria-label="Toggle Dark and Light Mode">
+                    <svg class="sun-icon hidden" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                    <svg class="moon-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
                 </button>
-                <div id="mainDropdown" class="dropdown-menu">
-                    <div class="dropdown-header">Menu</div>
-                    <a href="/" class="dropdown-item">Download Video</a>
-                    <a href="/recent" class="dropdown-item">My Videos</a>
-                    <div class="dropdown-divider"></div>
-                    <a href="https://github.com/imlype" target="_blank" class="dropdown-item">Developer Github</a>
-                </div>
-            </div>
-        </div>
-    </nav>
-
-    <main class="main-wrapper">
-        <div class="app-card">
-            <div class="header">
-                <h1>Download Videos</h1>
-                <p>Paste any video link below to download it without watermarks.</p>
-            </div>
-            
-            <div class="input-group">
-                <div class="input-wrapper">
-                    <input type="url" id="videoUrlInput" class="custom-input" placeholder="Paste link here..." autocomplete="off">
-                    <button class="clear-input-btn hidden" id="clearUrlBtn">✕</button>
-                </div>
                 
-                <button id="executeDownloadBtn" class="btn btn-primary btn-large full-width">
-                    <span class="btn-text">Download Video</span>
-                    <div class="loader-spinner hidden"></div>
-                </button>
+                <!-- Authentication Container (Updated dynamically via Supabase session) -->
+                <div id="authContainer">
+                    <a href="/login" class="btn btn-outline btn-sm">Log In</a>
+                </div>
+
+                <!-- Dropdown Menu for Mobile Navigation -->
+                <div class="dropdown-wrapper">
+                    <button class="icon-btn" id="menuTriggerBtn" aria-expanded="false" aria-haspopup="true" aria-label="Open Navigation Menu">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="3" y1="12" x2="21" y2="12"></line>
+                            <line x1="3" y1="6" x2="21" y2="6"></line>
+                            <line x1="3" y1="18" x2="21" y2="18"></line>
+                        </svg>
+                    </button>
+                    <div id="mainDropdown" class="dropdown-menu" role="menu">
+                        <div class="dropdown-header">Navigation</div>
+                        <a href="/" class="dropdown-item active" role="menuitem">
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 10l5 5 5-5"></path><path d="M12 15V3"></path><path d="M5 20h14"></path></svg>
+                            Download Video
+                        </a>
+                        <a href="/recent" class="dropdown-item" role="menuitem">
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                            My Videos Library
+                        </a>
+                        <div class="dropdown-divider"></div>
+                        <div class="dropdown-header">Developer</div>
+                        <a href="https://github.com/imlype" target="_blank" rel="noopener noreferrer" class="dropdown-item" role="menuitem">
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path></svg>
+                            GitHub Profile
+                        </a>
+                    </div>
+                </div>
             </div>
-        </div>
+        </nav>
+    </header>
+
+    <!--
+      ==========================================================================
+      MAIN CONTENT WRAPPER:
+      Encompasses the primary application layout and user interaction flow.
+      ==========================================================================
+    -->
+    <main class="main-wrapper">
+        <!--
+          HERO & INPUT INTERFACE SECTION:
+          Uses Playfair Display serif typography for a refined editorial feel.
+        -->
+        <section class="hero-section">
+            <!-- Subtle Forest Pill Badge -->
+            <div class="hero-badge">
+                <span class="badge-dot"></span>
+                <span class="badge-text">Clean &bull; Fast &bull; Watermark-Free</span>
+            </div>
+
+            <!-- Editorial Headline (Playfair Display) -->
+            <h1 class="hero-title">
+                Download Videos <br>
+                <span class="editorial-accent">Without Watermarks.</span>
+            </h1>
+            
+            <p class="hero-subtitle">
+                Paste any video link from TikTok or Instagram Reels. Extract crisp, original-quality MP4 videos directly to your device with zero unwanted logos.
+            </p>
+
+            <!--
+              DOWNLOADER CARD CONTAINER:
+              Clean, tailored card container with subtle borders and solid green accents.
+            -->
+            <div class="app-card downloader-card">
+                <div class="input-group">
+                    <div class="input-wrapper">
+                        <!-- Left Link Icon -->
+                        <span class="input-icon" aria-hidden="true">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
+                                <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
+                            </svg>
+                        </span>
+
+                        <!-- Main URL Input Field -->
+                        <input 
+                            type="url" 
+                            id="videoUrlInput" 
+                            class="custom-input with-left-icon" 
+                            placeholder="Paste link here (TikTok or Instagram Reels)..." 
+                            autocomplete="off" 
+                            spellcheck="false"
+                            aria-label="Video Link Input"
+                        >
+
+                        <!-- Input Controls: Quick Paste & Clear -->
+                        <div class="input-action-buttons">
+                            <!-- 1-Click Clipboard Paste -->
+                            <button type="button" class="paste-input-btn" id="pasteUrlBtn" title="Paste link from clipboard">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
+                                    <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
+                                </svg>
+                                <span>Paste</span>
+                            </button>
+
+                            <!-- Clear Input Button -->
+                            <button type="button" class="clear-input-btn hidden" id="clearUrlBtn" title="Clear input text" aria-label="Clear Input Field">
+                                ✕
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Primary Action Button (Solid Emerald Green) -->
+                    <button id="executeDownloadBtn" class="btn btn-primary btn-large full-width download-submit-btn">
+                        <span class="btn-text">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                <polyline points="7 10 12 15 17 10"></polyline>
+                                <line x1="12" y1="15" x2="12" y2="3"></line>
+                            </svg>
+                            Download Video
+                        </span>
+                        <div class="loader-spinner hidden" aria-label="Processing video download..."></div>
+                    </button>
+                </div>
+
+                <!-- Platform Support Chips (TikTok & Instagram Reels only) -->
+                <div class="platforms-container">
+                    <span class="platforms-label">Supported platforms:</span>
+                    <div class="platforms-grid">
+                        <span class="platform-chip" title="TikTok">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64c.29 0 .58.04.85.12V9.39a6.29 6.29 0 0 0-.85-.06A6.34 6.34 0 0 0 3.1 15.68 6.34 6.34 0 0 0 9.44 22a6.34 6.34 0 0 0 6.34-6.32V8.98a8.27 8.27 0 0 0 3.81 1.25V6.69z"/></svg>
+                            TikTok
+                        </span>
+                        <span class="platform-chip" title="Instagram Reels">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
+                            Instagram
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!--
+          ======================================================================
+          TWO CORE HIGHLIGHT BANNERS (Requested):
+          1. Watermark-free downloads.
+          2. Account library that saves and keeps track of your videos.
+          Clean, elegant two-column layout without generic bloated tech descriptions.
+          ======================================================================
+        -->
+        <section class="banners-section" aria-label="Key App Features">
+            <div class="banners-grid">
+                <!-- Banner 1: Watermark-Free -->
+                <div class="banner-card">
+                    <div class="banner-icon">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                            <polyline points="9 12 11 14 15 10"></polyline>
+                        </svg>
+                    </div>
+                    <div class="banner-body">
+                        <h2 class="banner-title">Watermark-Free Downloads</h2>
+                        <p class="banner-desc">
+                            Extract video files directly from clean source streams, stripping out overlays and logos for pristine original-quality playback.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Banner 2: Account History & Library -->
+                <div class="banner-card">
+                    <div class="banner-icon">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
+                            <polyline points="17 21 17 13 7 13 7 21"></polyline>
+                            <polyline points="7 3 7 8 15 8"></polyline>
+                        </svg>
+                    </div>
+                    <div class="banner-body">
+                        <h2 class="banner-title">Saved to Your Library</h2>
+                        <p class="banner-desc">
+                            Log in to your account and every video you download is safely archived in your personal library so you can re-watch and access them anytime.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
     </main>
 
+    <!--
+      ==========================================================================
+      SITE FOOTER:
+      Semantic `<footer>` element with clean branding and developer attribution.
+      Free from framework advertising (no flask/supabase text).
+      ==========================================================================
+    -->
+    <footer class="site-footer">
+        <div class="footer-container">
+            <div class="footer-brand">
+                <div class="footer-logo">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--primary-color);">
+                        <path d="M7 10l5 5 5-5"></path>
+                        <path d="M12 15V3"></path>
+                        <path d="M5 20h14"></path>
+                    </svg>
+                    <span>SV Downloader</span>
+                </div>
+                <p class="footer-tagline">Fast, watermark-free media downloads with personal library management.</p>
+            </div>
+
+            <div class="footer-links">
+                <a href="/" class="footer-link">Home</a>
+                <a href="/recent" class="footer-link">My Videos</a>
+                <a href="/login" class="footer-link">Account</a>
+                <a href="https://github.com/imlype" target="_blank" rel="noopener noreferrer" class="footer-link github-btn">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path>
+                    </svg>
+                    imlype
+                </a>
+            </div>
+        </div>
+
+        <div class="footer-bottom">
+            <p>&copy; 2026 SV Downloader. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <!--
+      ==========================================================================
+      CLIENT-SIDE JAVASCRIPT:
+      Manages the UI lifecycle, asynchronous network communications with the Flask
+      backend, Supabase authentication checks, and DOM interaction events.
+      ==========================================================================
+    -->
     <script>
+        /**
+         * =====================================================================
+         * CLASS: ToastSystem
+         * Object-Oriented notification manager that dynamically creates,
+         * animates, and dismisses alert toasts.
+         * =====================================================================
+         */
         class ToastSystem {
-            constructor() { this.container = document.getElementById('toastContainer'); }
+            /**
+             * Caches the DOM reference to the toast container.
+             */
+            constructor() { 
+                this.container = document.getElementById('toastContainer'); 
+            }
+
+            /**
+             * Displays an animated toast message.
+             * @param {string} msg - Body copy to present.
+             * @param {string} type - 'info' | 'success' | 'error'
+             * @param {number} ms - Lifespan in milliseconds.
+             */
             show(msg, type = 'info', ms = 4000) {
+                // Step 1: Create DOM element with appropriate semantic classes
                 const t = document.createElement('div');
                 t.className = `toast toast-${type}`;
+
+                // Step 2: Inject inner accessible content
                 t.innerHTML = `
                     <div class="toast-content">
                         <div class="toast-title">${type === 'error' ? 'Error' : type === 'success' ? 'Success' : 'Notice'}</div>
                         <div class="toast-msg">${msg}</div>
                     </div>
-                    <button class="toast-close">✕</button>
+                    <button class="toast-close" aria-label="Dismiss notification">✕</button>
                     <div class="toast-progress"></div>
                 `;
-                this.container.appendChild(t);
-                void t.offsetWidth; t.classList.add('visible');
 
+                // Step 3: Append to container in DOM
+                this.container.appendChild(t);
+
+                // Step 4: Force a browser reflow to trigger smooth opacity CSS transition
+                void t.offsetWidth; 
+                t.classList.add('visible');
+
+                // Step 5: Countdown linear progress indicator
                 const bar = t.querySelector('.toast-progress');
-                bar.style.transition = `width ${ms}ms linear`; bar.style.width = '0%';
+                bar.style.transition = `width ${ms}ms linear`; 
+                bar.style.width = '0%';
                 
-                const remove = () => { t.classList.remove('visible'); setTimeout(() => t.remove(), 300); };
+                // Step 6: Dismissal handler with smooth exit animation
+                const remove = () => { 
+                    t.classList.remove('visible'); 
+                    setTimeout(() => t.remove(), 300); 
+                };
+
+                // Close on manual user click
                 t.querySelector('.toast-close').onclick = remove;
+
+                // Close automatically upon timer expiry
                 setTimeout(remove, ms);
             }
         }
 
+        /**
+         * =====================================================================
+         * DOMContentLoaded EVENT LISTENER:
+         * Waits until the HTML document structure is fully parsed before
+         * attaching event listeners and querying DOM elements.
+         * =====================================================================
+         */
         document.addEventListener('DOMContentLoaded', () => {
+            // Initialize notification service
             const toast = new ToastSystem();
 
+            // -----------------------------------------------------------------
+            // 1. MOBILE NAVIGATION DROPDOWN MENU
+            // -----------------------------------------------------------------
             const menuBtn = document.getElementById('menuTriggerBtn');
             const dropdown = document.getElementById('mainDropdown');
-            menuBtn.addEventListener('click', () => dropdown.classList.toggle('active'));
-            document.addEventListener('click', (e) => {
-                if (!dropdown.contains(e.target) && !menuBtn.contains(e.target)) dropdown.classList.remove('active');
+            
+            // Toggle dropdown menu state on click
+            menuBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                dropdown.classList.toggle('active');
+                const isOpen = dropdown.classList.contains('active');
+                menuBtn.setAttribute('aria-expanded', isOpen);
             });
 
+            // Automatically close dropdown when clicking outside
+            document.addEventListener('click', (e) => {
+                if (!dropdown.contains(e.target) && !menuBtn.contains(e.target)) {
+                    dropdown.classList.remove('active');
+                    menuBtn.setAttribute('aria-expanded', 'false');
+                }
+            });
+
+            // -----------------------------------------------------------------
+            // 2. THEME TOGGLE (WITH LOCALSTORAGE PERSISTENCE)
+            // -----------------------------------------------------------------
             const themeBtn = document.getElementById('themeToggleBtn');
-            if (localStorage.getItem('theme') === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
+            
+            // Restore saved preference if previously set
+            if (localStorage.getItem('theme') === 'dark') {
+                document.documentElement.setAttribute('data-theme', 'dark');
+            }
+
+            // Switch theme on button click and persist to localStorage
             themeBtn.addEventListener('click', () => {
                 const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
-                document.documentElement.setAttribute('data-theme', isDark ? 'light' : 'dark');
-                localStorage.setItem('theme', isDark ? 'light' : 'dark');
+                const nextTheme = isDark ? 'light' : 'dark';
+                
+                document.documentElement.setAttribute('data-theme', nextTheme);
+                localStorage.setItem('theme', nextTheme);
             });
 
+            // -----------------------------------------------------------------
+            // 3. INPUT HELPERS: CLEAR BUTTON & CLIPBOARD PASTE
+            // -----------------------------------------------------------------
             const urlInput = document.getElementById('videoUrlInput');
             const clearBtn = document.getElementById('clearUrlBtn');
-            urlInput.addEventListener('input', () => { clearBtn.classList.toggle('hidden', urlInput.value.length === 0); });
-            clearBtn.addEventListener('click', () => { urlInput.value = ''; clearBtn.classList.add('hidden'); });
+            const pasteBtn = document.getElementById('pasteUrlBtn');
 
+            // Toggle visibility of clear button based on text length
+            urlInput.addEventListener('input', () => { 
+                clearBtn.classList.toggle('hidden', urlInput.value.length === 0); 
+            });
+
+            // Clear input value and focus input
+            clearBtn.addEventListener('click', () => { 
+                urlInput.value = ''; 
+                clearBtn.classList.add('hidden'); 
+                urlInput.focus();
+            });
+
+            // 1-Click Clipboard Paste via Navigator Clipboard API
+            if (pasteBtn && navigator.clipboard && navigator.clipboard.readText) {
+                pasteBtn.addEventListener('click', async () => {
+                    try {
+                        const text = await navigator.clipboard.readText();
+                        if (text && text.trim().length > 0) {
+                            urlInput.value = text.trim();
+                            clearBtn.classList.remove('hidden');
+                            toast.show("Pasted link from clipboard!", "info", 2000);
+                            urlInput.focus();
+                        } else {
+                            toast.show("Your clipboard appears to be empty.", "info", 2000);
+                        }
+                    } catch (err) {
+                        toast.show("Clipboard permission denied. Please paste manually.", "info", 2500);
+                    }
+                });
+            }
+
+            // Keyboard convenience: Pressing Enter triggers download
+            urlInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    document.getElementById('executeDownloadBtn').click();
+                }
+            });
+
+            // -----------------------------------------------------------------
+            // 4. SUPABASE AUTHENTICATION INITIALIZATION
+            // -----------------------------------------------------------------
             const dbUrl = 'https://ncqufcoprwkpjredhlxo.supabase.co'; 
             const dbKey = 'sb_publishable_OxzXsblTjBO1FMcKCbhzKQ_w4zonqru';
             const db = window.supabase.createClient(dbUrl, dbKey);
             let activeUser = null;
 
+            /**
+             * Checks active user session and updates the navigation bar with
+             * user initials, email address, and a sign-out button.
+             */
             async function checkSession() {
                 try {
                     const { data: { session } } = await db.auth.getSession();
                     if (session) {
                         activeUser = session.user;
-                        const initials = activeUser.email.substring(0,2).toUpperCase();
+                        const initials = activeUser.email.substring(0, 2).toUpperCase();
+                        
                         document.getElementById('authContainer').innerHTML = `
                             <div class="user-pill">
-                                <div class="avatar-circle">${initials}</div>
-                                <span class="user-email-truncate">${activeUser.email}</span>
-                                <button class="btn btn-outline btn-sm" style="margin-left:10px; border:none;" id="logoutBtn">Log Out</button>
+                                <div class="avatar-circle" title="${activeUser.email}">${initials}</div>
+                                <span class="user-email-truncate" title="${activeUser.email}">${activeUser.email}</span>
+                                <button class="btn btn-outline btn-sm logout-nav-btn" id="logoutBtn">Log Out</button>
                             </div>
                         `;
+
+                        // Attach sign out event listener
                         document.getElementById('logoutBtn').addEventListener('click', async () => {
                             await db.auth.signOut();
                             window.location.reload();
                         });
                     }
-                } catch (e) { console.error("Session Error:", e); }
+                } catch (e) { 
+                    console.error("Supabase Session Error:", e); 
+                }
             }
             checkSession();
 
-            document.getElementById('executeDownloadBtn').addEventListener('click', async (e) => {
+            // -----------------------------------------------------------------
+            // 5. VIDEO EXTRACTION & DOWNLOAD ACTION
+            // -----------------------------------------------------------------
+            const downloadBtn = document.getElementById('executeDownloadBtn');
+
+            downloadBtn.addEventListener('click', async (e) => {
                 const btn = e.currentTarget;
                 const url = urlInput.value.trim();
                 
-                if (!url) return toast.show("Please enter a valid video link.", "error");
+                // Validate URL presence
+                if (!url) {
+                    return toast.show("Please enter or paste a valid video link.", "error");
+                }
 
+                // Show loading state
                 btn.disabled = true;
                 btn.querySelector('.btn-text').classList.add('hidden');
                 btn.querySelector('.loader-spinner').classList.remove('hidden');
-                toast.show("Fetching video details...", "info", 4000);
+                toast.show("Fetching video stream details...", "info", 4000);
 
                 try {
+                    // Send POST request to Flask backend endpoint
                     const req = await fetch('/api/extract', {
                         method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
+                        headers: { 
+                            'Content-Type': 'application/json' 
+                        },
                         body: JSON.stringify({ url })
                     });
 
+                    // Handle server errors
                     if (!req.ok) {
                         const err = await req.json();
                         throw new Error(err.error || "Server failed to process link.");
                     }
 
+                    // Parse JSON metadata
                     const payload = await req.json();
 
+                    // If logged in, record this download in Supabase database
                     if (activeUser) {
                         await db.from('downloads').insert([{
                             user_id: activeUser.id,
@@ -178,13 +605,21 @@
                         }]);
                     }
 
-                    toast.show("Success! Download starting...", "success");
+                    // Success notification
+                    toast.show("Success! Video extracted. Download starting...", "success");
+
+                    // Trigger direct MP4 download in user's browser
                     window.location.href = `/api/download/${payload.id}?title=${encodeURIComponent(payload.title)}`;
-                    urlInput.value = ''; clearBtn.classList.add('hidden');
+                    
+                    // Reset input
+                    urlInput.value = ''; 
+                    clearBtn.classList.add('hidden');
 
                 } catch (err) {
+                    // Display sanitized error message
                     toast.show(`Error: ${err.message}`, "error");
                 } finally {
+                    // Restore button state
                     btn.disabled = false;
                     btn.querySelector('.btn-text').classList.remove('hidden');
                     btn.querySelector('.loader-spinner').classList.add('hidden');
