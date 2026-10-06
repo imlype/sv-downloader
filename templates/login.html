@@ -146,9 +146,24 @@
 
             document.getElementById('googleAuthBtn').addEventListener('click', async () => {
                 toast.show("Connecting to Google...", "info");
+
+                // redirectTo tells Supabase where to send the user after Google
+                // confirms the login. We build this dynamically from the current
+                // page's origin so it works both on localhost AND on Vercel
+                // without hardcoding a URL.
+                //
+                // IMPORTANT — this alone is not enough. You MUST also add your
+                // Vercel deployment URL to the Supabase dashboard:
+                //   Supabase → Authentication → URL Configuration
+                //   → "Redirect URLs" → add  https://your-app.vercel.app/**
+                //
+                // Without that whitelist entry, Supabase will reject the redirect
+                // and Google will bounce back to localhost even in production.
+                const redirectTo = `${window.location.origin}/`;
+
                 const { error } = await db.auth.signInWithOAuth({ 
                     provider: 'google',
-                    options: { redirectTo: window.location.origin } 
+                    options: { redirectTo }
                 });
                 if (error) toast.show(`Error: ${error.message}`, "error");
             });
